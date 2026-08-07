@@ -18,3 +18,7 @@ public/uploads/*
 
 next-env.d.ts
 *.tsbuildinfo
+
+# local credential scratch files — never commit
+env.txt
+*.env.txt

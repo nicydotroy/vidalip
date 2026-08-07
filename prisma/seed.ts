@@ -1,5 +1,17 @@
+import { existsSync } from "node:fs";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+
+// Run directly by tsx, outside the Prisma CLI, so nothing loads .env for us —
+// and since prisma.config.ts exists, Prisma no longer loads it implicitly
+// either. Hosts inject real environment variables and have no .env file.
+if (existsSync(".env")) {
+  try {
+    process.loadEnvFile(".env");
+  } catch {
+    // Node < 20.12 has no loadEnvFile; set the variables in your shell instead.
+  }
+}
 
 const prisma = new PrismaClient();
 
