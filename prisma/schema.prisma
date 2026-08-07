@@ -1,17 +1,21 @@
 // Vidalip — listing platform data model.
 //
-// NOTE: the SQLite connector does not support native enums, so role/status
-// columns are plain strings validated at the application boundary. The allowed
-// values live in src/lib/constants.ts — keep the two in sync. Switching the
-// provider to "postgresql" only requires changing the datasource block.
+// NOTE: role/status columns are plain strings validated at the application
+// boundary rather than native enums. The allowed values live in
+// src/lib/constants.ts — keep the two in sync. Adding a value there needs no
+// migration, which is why it stayed this way after the move to Postgres.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
+  // Pooled connection, used at runtime by the app.
+  url       = env("DATABASE_URL")
+  // Direct (non-pooled) connection, used by `prisma migrate`. Connection
+  // poolers can break migrations, so Neon wants these kept separate.
+  directUrl = env("DIRECT_URL")
 }
 
 model User {

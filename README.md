@@ -8,12 +8,17 @@ Auth.js credentials login.
 
 ## Getting started
 
-```bash
-npm install
-```
+You need a Postgres database. [Neon](https://neon.tech) has a free tier and is
+what this is set up for — create a project and copy both connection strings.
 
 ```bash
-npm run db:push && npm run db:seed
+npm install && cp .env.example .env
+```
+
+Fill in `DATABASE_URL` (pooled), `DIRECT_URL` (direct) and `AUTH_SECRET`, then:
+
+```bash
+npm run db:deploy && npm run db:seed
 ```
 
 ```bash
@@ -97,30 +102,44 @@ by moderators.
 - Ownership-scoped writes (`deleteMany({ id, userId })`) mean a forged id matches
   zero rows rather than touching someone else's data.
 
-## Moving to production
+## Deploying to Vercel
 
-1. **Database** — switch the `datasource` block in `prisma/schema.prisma` to
-   `postgresql` and point `DATABASE_URL` at your server. No model changes needed.
-   (SQLite has no native enum type, which is why role/status columns are strings
-   validated in `src/lib/constants.ts`.)
-2. **`AUTH_SECRET`** — generate a real one:
+Set these environment variables in **Project → Settings → Environment Variables**:
+
+| Variable                | Value                                                    |
+| ----------------------- | -------------------------------------------------------- |
+| `DATABASE_URL`          | Neon **pooled** string (host contains `-pooler`)          |
+| `DIRECT_URL`            | Neon **direct** string — used by migrations               |
+| `AUTH_SECRET`           | `openssl rand -base64 32`                                 |
+| `NEXT_PUBLIC_SITE_URL`  | `https://your-domain.com`                                 |
+| `BLOB_READ_WRITE_TOKEN` | Injected automatically when you create a Blob store       |
+
+Then, in **Storage**, create a **Blob** store and link it to the project. Uploads
+go there in production; without the token they fall back to local disk, which does
+not survive a deploy on Vercel.
+
+Migrations run automatically — `npm run build` is
+`prisma generate && prisma migrate deploy && next build`. The build therefore needs
+`DATABASE_URL` and `DIRECT_URL` to be set, and will fail loudly if they are not,
+rather than shipping an app that cannot reach its database.
+
+After the first successful deploy, create the main admin by running the seed once
+against production:
 
 ```bash
-openssl rand -base64 32
+DATABASE_URL="<your-neon-pooled-url>" npm run db:seed
 ```
 
-3. **Uploads** — files currently land in `public/uploads`, which does not survive on
-   ephemeral hosts like Vercel. Move `src/app/api/upload/route.ts` to S3, R2 or
-   Cloudinary, and add the host to `images.remotePatterns` in `next.config.ts`.
-4. **`NEXT_PUBLIC_SITE_URL`** — set to your real domain so canonical URLs, Open
-   Graph tags and `sitemap.xml` are correct.
+Nothing else queries the database at build time — `/sitemap.xml` is rendered per
+request precisely so that a build never depends on a reachable database.
 
 ## Scripts
 
 | Command           | Does                             |
 | ----------------- | -------------------------------- |
-| `npm run dev`     | Dev server                       |
-| `npm run build`   | Generate Prisma client + build   |
-| `npm run db:push` | Sync schema to the database      |
-| `npm run db:seed` | Create/repair the main admin     |
-| `npm run db:studio` | Browse the database in Prisma Studio |
+| `npm run dev`       | Dev server                                       |
+| `npm run build`     | Prisma generate + migrate deploy + Next build     |
+| `npm run db:migrate`| Create a new migration after editing the schema   |
+| `npm run db:deploy` | Apply existing migrations (no prompts)            |
+| `npm run db:seed`   | Create/repair the main admin                      |
+| `npm run db:studio` | Browse the database in Prisma Studio              |

@@ -38,11 +38,18 @@ const optionalText = (max: number) =>
     .transform((v) => (v === "" ? undefined : v));
 
 /**
- * Images must be paths produced by /api/upload. Rejecting anything else keeps
- * `javascript:`/`data:` URLs out of src attributes and means next/image never
- * needs a remote pattern allowlist.
+ * Images must come from /api/upload — either a local path (dev) or a Vercel
+ * Blob URL (production). Rejecting anything else keeps `javascript:`/`data:`
+ * URLs out of src attributes, and keeps next/image restricted to hosts that
+ * are actually in the remotePatterns allowlist.
  */
-const UPLOAD_PATH_RE = /^\/uploads\/[A-Za-z0-9._-]+$/;
+const LOCAL_UPLOAD_RE = /^\/uploads\/[A-Za-z0-9._-]+$/;
+const BLOB_URL_RE =
+  /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\/[A-Za-z0-9._\-/]+$/;
+
+export function isStoredImage(value: string): boolean {
+  return LOCAL_UPLOAD_RE.test(value) || BLOB_URL_RE.test(value);
+}
 
 const imagePath = z
   .string()
@@ -50,7 +57,7 @@ const imagePath = z
   .max(500)
   .optional()
   .transform((v) => (v === "" ? undefined : v))
-  .refine((v) => v === undefined || UPLOAD_PATH_RE.test(v), {
+  .refine((v) => v === undefined || isStoredImage(v), {
     message: "Upload the image instead of pasting a link",
   });
 
@@ -99,7 +106,7 @@ export const listingSchema = z.object({
 
   coverImage: imagePath,
   galleryImages: z
-    .array(z.string().regex(UPLOAD_PATH_RE, "Invalid image"))
+    .array(z.string().refine(isStoredImage, "Invalid image"))
     .max(12)
     .default([]),
   availability: z.array(availabilitySlotSchema).max(21).default([]),

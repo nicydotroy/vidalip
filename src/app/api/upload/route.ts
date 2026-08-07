@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { put } from "@vercel/blob";
 import { currentUser } from "@/lib/session";
 
 export const runtime = "nodejs";
@@ -9,7 +10,7 @@ export const runtime = "nodejs";
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 
 // The stored extension comes from this table, never from the uploaded
-// filename — that keeps a "photo.html" or "../../evil" out of the public dir.
+// filename — that keeps a "photo.html" or "../../evil" out of storage.
 const ALLOWED: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
@@ -68,10 +69,40 @@ export async function POST(request: Request) {
   }
 
   const name = `${randomUUID()}.${ALLOWED[detected]}`;
-  const dir = path.join(process.cwd(), "public", "uploads");
 
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, name), bytes);
+  // Serverless hosts have an ephemeral, read-only filesystem, so anything
+  // written to public/uploads disappears on the next deploy. When a Blob token
+  // is configured we upload there; otherwise we fall back to local disk so
+  // `npm run dev` works with no extra setup.
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    try {
+      const blob = await put(`listings/${name}`, Buffer.from(bytes), {
+        access: "public",
+        contentType: detected,
+      });
+      return NextResponse.json({ url: blob.url });
+    } catch (err) {
+      console.error("upload: blob storage failed", err);
+      return NextResponse.json(
+        { error: "Could not store the image. Try again." },
+        { status: 502 },
+      );
+    }
+  }
 
-  return NextResponse.json({ url: `/uploads/${name}` });
+  try {
+    const dir = path.join(process.cwd(), "public", "uploads");
+    await mkdir(dir, { recursive: true });
+    await writeFile(path.join(dir, name), bytes);
+    return NextResponse.json({ url: `/uploads/${name}` });
+  } catch (err) {
+    console.error("upload: local write failed", err);
+    return NextResponse.json(
+      {
+        error:
+          "Could not store the image. On a serverless host, set BLOB_READ_WRITE_TOKEN.",
+      },
+      { status: 500 },
+    );
+  }
 }

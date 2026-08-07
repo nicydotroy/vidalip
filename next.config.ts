@@ -2,9 +2,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    // Uploads are served from /uploads on the same origin, so no remote
-    // patterns are needed by default. Add them here if you move to S3/CDN.
-    remotePatterns: [],
+    remotePatterns: [
+      {
+        // Vercel Blob, where uploads live in production. Local dev writes to
+        // /uploads on the same origin, which needs no pattern.
+        protocol: "https",
+        hostname: "*.public.blob.vercel-storage.com",
+        pathname: "/**",
+      },
+    ],
   },
 };
 
