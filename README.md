@@ -106,22 +106,26 @@ by moderators.
 
 Set these environment variables in **Project → Settings → Environment Variables**:
 
-| Variable                | Value                                                    |
-| ----------------------- | -------------------------------------------------------- |
-| `DATABASE_URL`          | Neon **pooled** string (host contains `-pooler`)          |
-| `DIRECT_URL`            | Neon **direct** string — used by migrations               |
-| `AUTH_SECRET`           | `openssl rand -base64 32`                                 |
-| `NEXT_PUBLIC_SITE_URL`  | `https://your-domain.com`                                 |
-| `BLOB_READ_WRITE_TOKEN` | Injected automatically when you create a Blob store       |
+| Variable                | Required | Value                                               |
+| ----------------------- | -------- | --------------------------------------------------- |
+| `DATABASE_URL`          | yes      | Neon **pooled** string (host contains `-pooler`)     |
+| `AUTH_SECRET`           | yes      | `openssl rand -base64 32`                            |
+| `NEXT_PUBLIC_SITE_URL`  | yes      | `https://your-domain.com`                            |
+| `DIRECT_URL`            | no       | Neon **direct** string — falls back to `DATABASE_URL` |
+| `BLOB_READ_WRITE_TOKEN` | no       | Injected when you create a Blob store                |
+
+`DIRECT_URL` is optional but recommended: migrations run against it because
+connection poolers can interfere with them. Leave it unset and the build warns and
+uses `DATABASE_URL` instead, which works for a schema this size.
 
 Then, in **Storage**, create a **Blob** store and link it to the project. Uploads
 go there in production; without the token they fall back to local disk, which does
 not survive a deploy on Vercel.
 
 Migrations run automatically — `npm run build` is
-`prisma generate && prisma migrate deploy && next build`. The build therefore needs
-`DATABASE_URL` and `DIRECT_URL` to be set, and will fail loudly if they are not,
-rather than shipping an app that cannot reach its database.
+`prisma generate && node scripts/migrate.mjs && next build`. The build needs a
+reachable database and fails loudly if `DATABASE_URL` is missing, rather than
+shipping an app that cannot reach its database.
 
 After the first successful deploy, create the main admin by running the seed once
 against production:
