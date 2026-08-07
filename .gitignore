@@ -1,0 +1,20 @@
+node_modules
+.next
+out
+build
+.DS_Store
+
+# env — never commit real secrets
+.env
+.env*.local
+
+# local sqlite database
+prisma/*.db
+prisma/*.db-journal
+
+# user uploads
+public/uploads/*
+!public/uploads/.gitkeep
+
+next-env.d.ts
+*.tsbuildinfo

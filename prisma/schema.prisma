@@ -1,0 +1,107 @@
+// Vidalip — listing platform data model.
+//
+// NOTE: the SQLite connector does not support native enums, so role/status
+// columns are plain strings validated at the application boundary. The allowed
+// values live in src/lib/constants.ts — keep the two in sync. Switching the
+// provider to "postgresql" only requires changing the datasource block.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  // USER | ADMIN | SUPER_ADMIN
+  role         String   @default("USER")
+  // ACTIVE | SUSPENDED
+  status       String   @default("ACTIVE")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  listings         Listing[] @relation("ListingOwner")
+  reviewedListings Listing[] @relation("ListingReviewer")
+
+  @@index([role])
+}
+
+model Listing {
+  id     String @id @default(cuid())
+  slug   String @unique
+  userId String
+
+  // --- Core profile ---
+  title       String
+  category    String
+  location    String
+  description String
+  coverImage  String?
+
+  // --- Commercials ---
+  rateAmount   Float
+  rateCurrency String @default("USD")
+  // HOUR | DAY | SESSION | PROJECT
+  rateUnit     String @default("HOUR")
+
+  // --- Contact ---
+  contactEmail String?
+  phone        String?
+  website      String?
+
+  // --- SEO metadata ---
+  metaTitle       String?
+  metaDescription String?
+  metaImage       String?
+
+  // --- Moderation ---
+  // PENDING | APPROVED | REJECTED
+  status          String    @default("PENDING")
+  rejectionReason String?
+  reviewedAt      DateTime?
+  reviewedById    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner        User            @relation("ListingOwner", fields: [userId], references: [id], onDelete: Cascade)
+  reviewedBy   User?           @relation("ListingReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  images       ListingImage[]
+  availability Availability[]
+
+  @@index([status, createdAt])
+  @@index([userId])
+  @@index([category])
+}
+
+model ListingImage {
+  id        String @id @default(cuid())
+  listingId String
+  url       String
+  alt       String?
+  sortOrder Int    @default(0)
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId, sortOrder])
+}
+
+model Availability {
+  id        String @id @default(cuid())
+  listingId String
+  // 0 = Sunday … 6 = Saturday
+  dayOfWeek Int
+  // 24h "HH:MM"
+  startTime String
+  endTime   String
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId, dayOfWeek])
+}
