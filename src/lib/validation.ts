@@ -114,6 +114,24 @@ export const listingSchema = z.object({
 
 export type ListingInput = z.infer<typeof listingSchema>;
 
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current password"),
+    newPassword: z
+      .string()
+      .min(8, "New password must be at least 8 characters")
+      .max(200, "Password is too long"),
+    confirmPassword: z.string(),
+  })
+  .refine((v) => v.newPassword === v.confirmPassword, {
+    message: "The two passwords do not match",
+    path: ["confirmPassword"],
+  })
+  .refine((v) => v.newPassword !== v.currentPassword, {
+    message: "The new password must be different from the current one",
+    path: ["newPassword"],
+  });
+
 export const rejectSchema = z.object({
   reason: z
     .string()

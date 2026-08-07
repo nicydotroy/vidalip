@@ -25,14 +25,17 @@ npm run db:deploy && npm run db:seed
 npm run dev
 ```
 
-The seed creates the main admin account. Credentials come from `.env`:
+The seed creates the main admin using `SEED_SUPER_ADMIN_EMAIL` and
+`SEED_SUPER_ADMIN_PASSWORD` from `.env`. There are deliberately no default
+credentials — the seed refuses to run without them, and requires a password of at
+least 12 characters. Generate one with:
 
-| Field    | Value                |
-| -------- | -------------------- |
-| Email    | `admin@vidalip.test` |
-| Password | `Admin@12345`        |
+```bash
+openssl rand -base64 24
+```
 
-Change these in `.env` before seeding, and change the password after first login.
+Re-running the seed never overwrites an existing admin's password; it only repairs
+the role and status. Change your password any time from **Account** in the header.
 
 ## Roles
 

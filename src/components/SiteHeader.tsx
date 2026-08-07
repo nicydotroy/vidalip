@@ -44,7 +44,10 @@ export default async function SiteHeader() {
         <div className="ml-auto flex items-center gap-2">
           {user ? (
             <>
-              <div className="hidden text-right sm:block">
+              <Link
+                href="/dashboard/account"
+                className="hidden text-right sm:block rounded-lg px-2 py-1 transition hover:bg-ink-800"
+              >
                 <div className="text-sm font-medium leading-tight">{user.name}</div>
                 <div className="text-xs leading-tight text-ink-400">
                   {user.role === "SUPER_ADMIN"
@@ -53,7 +56,7 @@ export default async function SiteHeader() {
                       ? "Admin"
                       : "Member"}
                 </div>
-              </div>
+              </Link>
               <Link href="/dashboard/listings/new" className="btn-primary">
                 Post a listing
               </Link>
