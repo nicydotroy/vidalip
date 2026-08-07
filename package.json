@@ -2,6 +2,9 @@
   "name": "vidalip",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.12.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && node scripts/migrate.mjs && next build",
