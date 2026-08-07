@@ -10,6 +10,19 @@
  * This falls back to DATABASE_URL and says so, instead of hard-failing.
  */
 import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+
+// Hosts inject real environment variables, but local runs keep them in .env,
+// which Node does not read on its own. The Prisma CLI loads .env itself, so
+// without this the check below would fail locally even when configured.
+if (existsSync(".env")) {
+  try {
+    process.loadEnvFile(".env");
+  } catch {
+    // Node < 20.12 has no loadEnvFile; the Prisma CLI still reads .env, so
+    // only the friendly pre-flight check below is lost.
+  }
+}
 
 const env = { ...process.env };
 
