@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -29,10 +30,7 @@ export default function RootLayout({
       <body className="min-h-screen">
         <SiteHeader />
         <main>{children}</main>
-        <footer className="mt-20 border-t border-ink-800 py-8 text-center text-sm text-ink-400">
-          © {new Date().getFullYear()} Vidalip. All listings are reviewed before
-          they go live.
-        </footer>
+        <SiteFooter />
       </body>
     </html>
   );
