@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { SITE } from "@/lib/site";
+import { CATEGORIES } from "@/lib/constants";
+import { CITIES, browseHref, CATEGORY_PLURAL } from "@/lib/locations";
 
 const COLUMNS: { heading: string; links: { href: string; label: string }[] }[] =
   [
@@ -34,6 +36,43 @@ export default function SiteFooter() {
   return (
     <footer className="mt-20 border-t border-ink-800">
       <div className="mx-auto max-w-6xl px-4 py-12">
+        {/* Browse band — one row per category, linking every city page. This
+            is the main internal-linking path to the landing pages. */}
+        <div className="mb-10 grid gap-6 border-b border-ink-800 pb-10 sm:grid-cols-3">
+          {CATEGORIES.map((category) => (
+            <div key={category}>
+              <h2 className="text-sm font-semibold text-ink-100">
+                <Link
+                  href={browseHref({ category, city: null })}
+                  className="transition hover:text-brand-400"
+                >
+                  {CATEGORY_PLURAL[category]}
+                </Link>
+              </h2>
+              <ul className="mt-3 flex flex-wrap gap-x-3 gap-y-2">
+                {CITIES.map((city) => (
+                  <li key={city}>
+                    <Link
+                      href={browseHref({ category, city })}
+                      className="text-sm text-ink-400 transition hover:text-ink-100"
+                    >
+                      {city}
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <Link
+                    href={browseHref({ category, city: null })}
+                    className="text-sm text-ink-400 transition hover:text-ink-100"
+                  >
+                    All cities
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          ))}
+        </div>
+
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {COLUMNS.map((column) => (
             <div key={column.heading}>
