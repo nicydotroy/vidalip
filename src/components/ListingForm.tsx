@@ -141,7 +141,7 @@ export default function ListingForm({
             maxLength={120}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Editorial fashion model — Milan based"
+            placeholder="Call Girls in Bangalore"
           />
           {err("title")}
         </div>
@@ -178,7 +178,7 @@ export default function ListingForm({
               className="input"
               required
               defaultValue={initial.location}
-              placeholder="Milan, Italy"
+              placeholder="Bangalore, Hyderabad, Mumbai, Delhi, Pune or All cities"
             />
             {err("location")}
           </div>

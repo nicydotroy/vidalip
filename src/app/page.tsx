@@ -68,11 +68,11 @@ export default async function HomePage({
     <div className="mx-auto max-w-6xl px-4 py-10">
       <section className="rounded-2xl border border-ink-800 bg-gradient-to-br from-ink-900 to-ink-950 px-6 py-14 text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-          Find and book creative talent
+          Find adult service listings
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-ink-300">
-          Every listing is reviewed by our team before it goes live. Compare
-          rates, check availability and reach out directly.
+          Every listing is reviewed by our team before it goes live. Browse
+          services across Bangalore, Hyderabad, Mumbai, Delhi, Pune and more.
         </p>
 
         <form action="/" className="mx-auto mt-7 flex max-w-lg gap-2">
@@ -83,7 +83,7 @@ export default async function HomePage({
             name="q"
             defaultValue={query}
             className="input"
-            placeholder="Search by name, skill or city…"
+            placeholder="Search by service, city or keyword…"
             aria-label="Search listings"
           />
           <button type="submit" className="btn-primary shrink-0">

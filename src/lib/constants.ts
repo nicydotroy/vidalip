@@ -30,14 +30,11 @@ export const CURRENCY_SYMBOL: Record<string, string> = {
 };
 
 export const CATEGORIES = [
-  "Fashion Model",
-  "Commercial Model",
-  "Runway Model",
-  "Fitness Model",
-  "Photographer",
-  "Makeup Artist",
-  "Stylist",
-  "Other",
+  "Call Girls",
+  "Massage",
+  "Male Escorts",
+  "Transsexual",
+  "Adult Meetings",
 ] as const;
 
 export const DAY_NAMES = [
