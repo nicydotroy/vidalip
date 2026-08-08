@@ -7,11 +7,12 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Vidalip — adult service listings in Bangalore, Hyderabad, Mumbai, Delhi, Pune and all cities",
+    default:
+      "Vidalip — book models, massage and parlor services in Bangalore, Hyderabad, Mumbai, Delhi and Pune",
     template: "%s | Vidalip",
   },
   description:
-    "Browse adult service listings across Bangalore, Hyderabad, Mumbai, Delhi, Pune and other cities.",
+    "Browse verified models, massage therapists and salon professionals across Bangalore, Hyderabad, Mumbai, Delhi, Pune and other cities. Compare rates and availability, and get in touch directly.",
   openGraph: {
     siteName: "Vidalip",
     type: "website",

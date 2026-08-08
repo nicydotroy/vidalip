@@ -68,11 +68,12 @@ export default async function HomePage({
     <div className="mx-auto max-w-6xl px-4 py-10">
       <section className="rounded-2xl border border-ink-800 bg-gradient-to-br from-ink-900 to-ink-950 px-6 py-14 text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-          Find adult service listings
+          Find models, massage and parlor services
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-ink-300">
-          Every listing is reviewed by our team before it goes live. Browse
-          services across Bangalore, Hyderabad, Mumbai, Delhi, Pune and more.
+          Every listing is reviewed by our team before it goes live. Compare
+          rates and availability across Bangalore, Hyderabad, Mumbai, Delhi,
+          Pune and more.
         </p>
 
         <form action="/" className="mx-auto mt-7 flex max-w-lg gap-2">

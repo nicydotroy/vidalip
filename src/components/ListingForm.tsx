@@ -141,7 +141,7 @@ export default function ListingForm({
             maxLength={120}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Call Girls in Bangalore"
+            placeholder="Bridal makeup and hair styling in Bangalore"
           />
           {err("title")}
         </div>
